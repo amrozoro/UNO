@@ -1,7 +1,4 @@
-# UNO-School-Project
-ICS4U Culminating Project
-
-UNO Card Game (with graphics)...
+# UNO Card Game (with graphics)
 
 A project I created for my final assignment in Grade 12 Computer Science class (ICS4U).
 
