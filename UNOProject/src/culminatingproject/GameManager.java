@@ -208,7 +208,9 @@ public class GameManager {
     public static Card PlaceCard(PlayerEnum player, Card card) {
         if (Utilities.IsActionOrWildCard(card.type)) {
             //If the card is an action or wild card, we call the cast method to cast its specific action
-            CastCard(player, GetNextPlayer(), card);
+            if(CastCard(player, GetNextPlayer(), card) == false) {
+                return null;
+            }
         }
         card.MoveToDiscardPile();
         BeginNewRound();
@@ -231,7 +233,7 @@ public class GameManager {
     @param playerToCastTo - the player receiving the cast
     @param card - the card to cast
     */
-    public static void CastCard(PlayerEnum castingPlayer, PlayerEnum playerToCastTo, Card card){
+    public static boolean CastCard(PlayerEnum castingPlayer, PlayerEnum playerToCastTo, Card card){
         switch (card.type) //calling different methods based on the type of card placed down
         {
             case Skip:
@@ -244,13 +246,19 @@ public class GameManager {
                 Plus(2, playerToCastTo);
                 break;
             case Plus4:
-                ChangeColor(castingPlayer, card);
+                if (ChangeColor(castingPlayer, card) == false) {
+                    return false;
+                }
                 Plus(4, playerToCastTo);
                 break;
             case ChangeColor:
-                ChangeColor(castingPlayer, card);
+                if (ChangeColor(castingPlayer, card) == false) {
+                    return false;
+                }
                 break;
         }
+        
+        return true;
     }
     /**
     Skip
@@ -292,15 +300,18 @@ public class GameManager {
     @param player - player changing color
     @param card - the card that is allowing the color to be changed
     */
-    public static void ChangeColor(PlayerEnum player, Card card) {
+    public static boolean ChangeColor(PlayerEnum player, Card card) {
         if (player == PlayerEnum.LocalPlayer) //player
         {
             int choice;
-            do{
-                Object[] options = {CardColorEnum.Red, CardColorEnum.Green, CardColorEnum.Blue, CardColorEnum.Yellow};
-                choice = UI.DisplayOptionDialog(FramesEnum.Game, "Change Color", options);
+            
+            Object[] options = {CardColorEnum.Red, CardColorEnum.Green, CardColorEnum.Blue, CardColorEnum.Yellow};
+            choice = UI.DisplayOptionDialog(FramesEnum.Game, "Change Color", options);
+            
+            if(choice == -1) {
+                //if player closed the window (didn't choose a color), it opens again until they do
+                return false;
             }
-            while (choice == -1); //if player closed the window (didn't choose a color), it opens again until they do
 
             card.color = CardColorEnum.values()[choice];
         }
@@ -308,6 +319,8 @@ public class GameManager {
         {
             card.color = Utilities.GetRandomColor();
         }
+        
+        return true;
     }
     //</editor-fold>
 
